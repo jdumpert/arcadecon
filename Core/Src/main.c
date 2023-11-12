@@ -57,7 +57,10 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+#define CLICK_REPORT_SIZE 5
+uint8_t click_report[CLICK_REPORT_SIZE] = {0};
+	
+extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END 0 */
 
 /**
@@ -98,9 +101,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
+    if(HAL_GPIO_ReadPin(USER_Btn_GPIO_Port, USER_Btn_Pin) == GPIO_PIN_SET){
+      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+    
+      click_report[0] = 1; // send button press
+      USBD_HID_SendReport(&hUsbDeviceFS, click_report, CLICK_REPORT_SIZE);
+      HAL_Delay(50); 
+    
+      click_report[0] = 0; // send button release
+      USBD_HID_SendReport(&hUsbDeviceFS, click_report, CLICK_REPORT_SIZE);
+    
+      HAL_Delay(200);
+    
+      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+}
   }
   /* USER CODE END 3 */
 }
