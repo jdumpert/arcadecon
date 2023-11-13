@@ -60,6 +60,17 @@ static void MX_USART3_UART_Init(void);
 #define CLICK_REPORT_SIZE 5
 uint8_t click_report[CLICK_REPORT_SIZE] = {0};
 	
+#define PRESS_REPORT_SIZE 8
+uint8_t press_report[PRESS_REPORT_SIZE] = {0};
+
+  struct keyboardHID_t {
+      uint8_t id;
+      uint8_t modifiers;
+      uint8_t key1;
+      uint8_t key2;
+      uint8_t key3;
+  };
+
 extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END 0 */
 
@@ -70,7 +81,12 @@ extern USBD_HandleTypeDef hUsbDeviceFS;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  struct keyboardHID_t keyboardHID;
+  keyboardHID.id = 1;
+  keyboardHID.modifiers = 0;
+  keyboardHID.key1 = 0;
+  keyboardHID.key2 = 0;
+  keyboardHID.key3 = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -101,20 +117,34 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if(HAL_GPIO_ReadPin(USER_Btn_GPIO_Port, USER_Btn_Pin) == GPIO_PIN_SET){
+    if(HAL_GPIO_ReadPin(USER_Btn_GPIO_Port, USER_Btn_Pin) == GPIO_PIN_SET)
+    {
       HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
     
-      click_report[0] = 1; // send button press
-      USBD_HID_SendReport(&hUsbDeviceFS, click_report, CLICK_REPORT_SIZE);
-      HAL_Delay(50); 
-    
-      click_report[0] = 0; // send button release
-      USBD_HID_SendReport(&hUsbDeviceFS, click_report, CLICK_REPORT_SIZE);
-    
-      HAL_Delay(200);
-    
+      press_report[0] = 0x02; //shift down
+      press_report[2] = 0; // send button press
+      USBD_HID_SendReport(&hUsbDeviceFS, press_report, PRESS_REPORT_SIZE);
+      HAL_Delay(20); 
+    }
+    else
+    {
+      press_report[0] = 0; //Shift up
+      press_report[2] = 0; // send button release
+      USBD_HID_SendReport(&hUsbDeviceFS, press_report, PRESS_REPORT_SIZE);
       HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
-}
+      HAL_Delay(20);
+    }
+
+
+      // keyboardHID.key1 = 0x04;
+      // USBD_HID_SendReport(&hUsbDeviceFS, &keyboardHID, sizeof(struct keyboardHID_t));
+      // HAL_Delay(30);
+      // keyboardHID.modifiers = 0;
+      // keyboardHID.key1 = 0;
+      // USBD_HID_SendReport(&hUsbDeviceFS, &keyboardHID, sizeof(struct keyboardHID_t));
+      // HAL_Delay(200);
+      
+
   }
   /* USER CODE END 3 */
 }
