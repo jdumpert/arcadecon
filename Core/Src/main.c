@@ -117,34 +117,27 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if(HAL_GPIO_ReadPin(USER_Btn_GPIO_Port, USER_Btn_Pin) == GPIO_PIN_SET)
+    press_report[0] = 0;
+    press_report[2] = 0;
+    //read gpio port c
+    if(HAL_GPIO_ReadPin(LeftShift_GPIO_Port,LeftShift_Pin) == GPIO_PIN_RESET )
     {
+      press_report[0] |= 0x02;
       HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+    }
     
-      press_report[0] = 0x02; //shift down
-      press_report[2] = 0; // send button press
-      USBD_HID_SendReport(&hUsbDeviceFS, press_report, PRESS_REPORT_SIZE);
-      HAL_Delay(20); 
-    }
-    else
+    if(HAL_GPIO_ReadPin(RightShift_GPIO_Port,RightShift_Pin) == GPIO_PIN_RESET )
     {
-      press_report[0] = 0; //Shift up
-      press_report[2] = 0; // send button release
-      USBD_HID_SendReport(&hUsbDeviceFS, press_report, PRESS_REPORT_SIZE);
-      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
-      HAL_Delay(20);
+      press_report[0] |= 0x20;
+      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
     }
 
-
-      // keyboardHID.key1 = 0x04;
-      // USBD_HID_SendReport(&hUsbDeviceFS, &keyboardHID, sizeof(struct keyboardHID_t));
-      // HAL_Delay(30);
-      // keyboardHID.modifiers = 0;
-      // keyboardHID.key1 = 0;
-      // USBD_HID_SendReport(&hUsbDeviceFS, &keyboardHID, sizeof(struct keyboardHID_t));
-      // HAL_Delay(200);
-      
-
+    if(press_report[0] == 0)
+    {
+      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+    }
+    USBD_HID_SendReport(&hUsbDeviceFS, press_report, PRESS_REPORT_SIZE);
+    HAL_Delay(20);     
   }
   /* USER CODE END 3 */
 }
@@ -258,6 +251,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LeftShift_Pin RightShift_Pin */
+  GPIO_InitStruct.Pin = LeftShift_Pin|RightShift_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
