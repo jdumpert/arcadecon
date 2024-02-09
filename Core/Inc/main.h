@@ -97,6 +97,32 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
+#define JOYSTICK_UP_Pin GPIO_PIN_14  //yellow wire
+#define JOYSTICK_UP_Port GPIOD
+
+#define JOYSTICK_DOWN_Pin GPIO_PIN_8  //green wire
+#define JOYSTICK_DOWN_Port GPIOE
+
+#define JOYSTICK_LEFT_Pin GPIO_PIN_14  //orange wire
+#define JOYSTICK_LEFT_Port GPIOF
+
+#define JOYSTICK_RIGHT_Pin GPIO_PIN_5 //red wire
+#define JOYSTICK_RIGHT_Port GPIOF
+
+#define JOYSTICK_1_P1_Pin  GPIO_PIN_12
+#define JOYSTICK_1_P1_Port GPIOB
+
+#define JOYSTICK_1_P2_Pin  GPIO_PIN_1
+#define JOYSTICK_1_P2_Port GPIOB
+
+#define KEYBOARD_UP      0x52
+#define KEYBOARD_DOWN    0x51
+#define KEYBOARD_LEFT    0x50
+#define KEYBOARD_RIGHT   0x4F
+#define KEYBOARD_ENTER   0x58
+#define KEYBOARD_A       0x04
+
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
