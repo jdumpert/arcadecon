@@ -155,6 +155,8 @@ void Error_Handler(void);
 #define COIN1       10
 #define P1_Start    11
 #define Shift       12
+#define Extra1      13
+#define Extra2      14
 
 
 /* USER CODE END Private defines */

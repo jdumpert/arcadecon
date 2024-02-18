@@ -80,19 +80,19 @@ extern USBD_HandleTypeDef hUsbDeviceFS;
 
 static const uint16_t ioPins[]         = { (GPIO_PIN_14), (GPIO_PIN_8), (GPIO_PIN_14), (GPIO_PIN_5), (GPIO_PIN_12),  
                                            (GPIO_PIN_1), (GPIO_PIN_12), (GPIO_PIN_7), (GPIO_PIN_5), (GPIO_PIN_3), 
-                                           (GPIO_PIN_13), (GPIO_PIN_15), (GPIO_PIN_7), (GPIO_PIN_6)};
+                                           (GPIO_PIN_13), (GPIO_PIN_4), (GPIO_PIN_7), (GPIO_PIN_6)};
 const GPIO_TypeDef * ioPorts[]  = {        (GPIOD),      (GPIOE),       (GPIOF),      (GPIOF),       (GPIOB),      
                                            (GPIOB),       (GPIOF),      (GPIOG),      (GPIOD),      (GPIOC),             
-                                           (GPIOC),       (GPIOC),      (GPIOF),      (GPIOF)};
+                                           (GPIOC),       (GPIOA),      (GPIOF),      (GPIOF)};
 
 const uint16_t userControlsIndex[] =      {P1_UP, P1_DOWN, P1_LEFT, P1_RIGHT, P1_B1, 
                                           P1_B2,   P1_B3,   P1_B4,   P1_B5,   P1_B6, 
-                                           COIN1, P1_Start, Shift};
+                                           COIN1, P1_Start, Shift, Extra1, Extra2};
 
 const uint16_t keycodes[] =                {KEYBOARD_A, KEYBOARD_B, KEYBOARD_C, KEYBOARD_D, KEYBOARD_E, 
                                             KEYBOARD_F, KEYBOARD_G, KEYBOARD_H, KEYBOARD_I, KEYBOARD_J, 
-                                            KEYBOARD_K, KEYBOARD_L, KEYBOARD_M, 
-                                            KEYBOARD_N, KEYBOARD_O, KEYBOARD_P, KEYBOARD_Q};
+                                            KEYBOARD_K, KEYBOARD_L, KEYBOARD_M, KEYBOARD_N,
+                                             KEYBOARD_O, KEYBOARD_P, KEYBOARD_Q};
 
 #define CTL_COUNT 14
 
@@ -162,22 +162,21 @@ int main(void)
 
     bool keyDown = false;
     uint32_t reportIndex = 2;
-    for(int i = 0; i < CTL_COUNT; i++)
+    for (int i = 0; i < CTL_COUNT; i++)
     {
-      if(HAL_GPIO_ReadPin(ioPorts[userControlsIndex[i]],ioPins[userControlsIndex[i]]) == GPIO_PIN_RESET )
-      {
-        press_report[reportIndex] = keycodes[i];
-        HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-        keyDown = true;
-      }
-      reportIndex++;
-      if(reportIndex == PRESS_REPORT_SIZE)
-      {
-        reportIndex = 2;
-      }
-    }
+        if (HAL_GPIO_ReadPin(ioPorts[userControlsIndex[i]], ioPins[userControlsIndex[i]]) == GPIO_PIN_RESET)
+        {
+            press_report[reportIndex] = keycodes[i];
+            HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+            keyDown = true;
+            reportIndex++;
+        }
 
- 
+        if (reportIndex == PRESS_REPORT_SIZE)
+        {
+            reportIndex = 2;
+        }
+    }
 
   //led off if no flipper down
     if(keyDown == false)
