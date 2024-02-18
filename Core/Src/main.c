@@ -1,45 +1,9 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 #include "usb_device.h"
 #include <stdbool.h>
+#include "key_mapping.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart3;
@@ -78,6 +42,27 @@ uint8_t press_report[PRESS_REPORT_SIZE] = {0};
 extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END 0 */
 
+#define X(en,str,port,pin,key) pin,
+const uint16_t xIoPins[] = {XKEYS};
+#undef X
+
+#define X(en,str,port,pin,key) port,
+const GPIO_TypeDef * xIoPorts[] = {XKEYS};
+#undef X
+
+#define X(en,str,port,pin,key) key,
+const uint16_t xUserControlsIndex[] = {XKEYS};
+#undef X
+
+#define X(en,str,port,pin,key) str,
+const char * xUserControls[] = {XKEYS};
+#undef X
+
+#define X(en,str,port,pin,key) en,
+enum xUserControlsEnum {XKEYS};
+#undef X
+
+
 static const uint16_t ioPins[]         = { (GPIO_PIN_14), (GPIO_PIN_8), (GPIO_PIN_14), (GPIO_PIN_5), (GPIO_PIN_12),  
                                            (GPIO_PIN_1), (GPIO_PIN_12), (GPIO_PIN_7), (GPIO_PIN_5), (GPIO_PIN_3), 
                                            (GPIO_PIN_13), (GPIO_PIN_4), (GPIO_PIN_7), (GPIO_PIN_6)};
@@ -85,13 +70,23 @@ const GPIO_TypeDef * ioPorts[]  = {        (GPIOD),      (GPIOE),       (GPIOF),
                                            (GPIOB),       (GPIOF),      (GPIOG),      (GPIOD),      (GPIOC),             
                                            (GPIOC),       (GPIOA),      (GPIOF),      (GPIOF)};
 
-const uint16_t userControlsIndex[] =      {P1_UP, P1_DOWN, P1_LEFT, P1_RIGHT, P1_B1, 
+const uint16_t userControlsIndex[] =      {P1_RIGHT, P1_LEFT,P1_UP, P1_DOWN,  P1_B1, 
                                           P1_B2,   P1_B3,   P1_B4,   P1_B5,   P1_B6, 
-                                           COIN1, P1_Start, Shift, Extra1, Extra2};
+                                           COIN1, P1_Start,  Shift,  Extra2};
 
 const uint16_t keycodes[] =                {KEYBOARD_A, KEYBOARD_B, KEYBOARD_C, KEYBOARD_D, KEYBOARD_E, 
                                             KEYBOARD_F, KEYBOARD_G, KEYBOARD_H, KEYBOARD_I, KEYBOARD_J, 
-                                            KEYBOARD_K, KEYBOARD_L, KEYBOARD_M, KEYBOARD_N,
+                                            KEYBOARD_K, KEYBOARD_L, KEYBOARD_M, SPECIAL_SHIFT,
+                                             KEYBOARD_O, KEYBOARD_P, KEYBOARD_Q};
+
+const uint16_t mameKeycodes[] =             {KEYBOARD_RIGHT, KEYBOARD_LEFT, KEYBOARD_UP, KEYBOARD_DOWN,  KEYBOARD_E, 
+                                            KEYBOARD_F, KEYBOARD_G, KEYBOARD_H, KEYBOARD_I, KEYBOARD_J, 
+                                            KEYBOARD_K, KEYBOARD_L, KEYBOARD_M, SPECIAL_SHIFT,
+                                             KEYBOARD_O, KEYBOARD_P, KEYBOARD_Q};
+
+const uint16_t shiftedKeycodes[] =         {KEYBOARD_RIGHT, KEYBOARD_LEFT, KEYBOARD_UP, KEYBOARD_DOWN,  KEYBOARD_E, 
+                                            KEYBOARD_F, KEYBOARD_G, KEYBOARD_H, KEYBOARD_I, KEYBOARD_J, 
+                                            KEYBOARD_K, KEYBOARD_L, KEYBOARD_M, SPECIAL_SHIFT,
                                              KEYBOARD_O, KEYBOARD_P, KEYBOARD_Q};
 
 #define CTL_COUNT 14
@@ -139,8 +134,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    press_report[0] = 0;
-    press_report[2] = 0;
+
     //read gpio port c
     // if(HAL_GPIO_ReadPin(LeftShift_GPIO_Port,LeftShift_Pin) == GPIO_PIN_RESET )
     // {
@@ -162,14 +156,39 @@ int main(void)
 
     bool keyDown = false;
     uint32_t reportIndex = 2;
+
+    bool useShiftedKeycodes = false;
+    //check for Shift key
+    if (HAL_GPIO_ReadPin(ioPorts[userControlsIndex[Shift]], ioPins[userControlsIndex[Shift]]) == GPIO_PIN_RESET)
+    {
+        useShiftedKeycodes = true;
+    }
+
+
     for (int i = 0; i < CTL_COUNT; i++)
     {
         if (HAL_GPIO_ReadPin(ioPorts[userControlsIndex[i]], ioPins[userControlsIndex[i]]) == GPIO_PIN_RESET)
         {
-            press_report[reportIndex] = keycodes[i];
+            uint16_t keycode = mameKeycodes[i];
+
+            if(keycode == 0)
+            {
+                press_report[reportIndex] = shiftedKeycodes[i];
+                reportIndex++;
+            }
+            else if(keycode >= KEYBOARD_LCTRL && keycode <= KEYBOARD_RGUI)
+            {
+                press_report[0] |= (0x01 << (keycode - 0xE0));
+            }
+            else
+            {
+                press_report[reportIndex] = mameKeycodes[i];
+                reportIndex++;
+            }
+
             HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
             keyDown = true;
-            reportIndex++;
+            
         }
 
         if (reportIndex == PRESS_REPORT_SIZE)

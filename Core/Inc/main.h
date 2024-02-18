@@ -141,11 +141,44 @@ void Error_Handler(void);
 #define KEYBOARD_O       0x12
 #define KEYBOARD_P       0x13
 #define KEYBOARD_Q       0x14
+#define KEYBOARD_X       0x1B
+#define KEYBOARD_Y       0x1C
+#define KEYBOARD_Z       0x1D
+#define KEYBOARD_1       0x1E
+#define KEYBOARD_2       0x1F
+#define KEYBOARD_3       0x20
+#define KEYBOARD_4       0x21
+#define KEYBOARD_5       0x22
 
-#define P1_UP       0 //yellow wire
-#define P1_DOWN     1  //green wire
-#define P1_LEFT     2  //orange wire
-#define P1_RIGHT    3 //red wire
+#define KEYBOARD_SPACE   0x2C
+
+
+#define KEYBOARD_LCTRL   0xE0
+#define KEYBOARD_LSHIFT  0xE1
+#define KEYBOARD_LALT    0xE2
+#define KEYBOARD_LGUI    0xE3
+#define KEYBOARD_RCTRL   0xE4
+#define KEYBOARD_RSHIFT  0xE5
+#define KEYBOARD_RALT    0xE6
+#define KEYBOARD_RGUI    0xE7
+
+#define LCTRL_MASK     0x01
+#define LSHIFT_MASK     0x02
+#define LALT_MASK     0x04
+#define LGUI_MASK     0x08
+#define RCTRL_MASK     0x10
+#define RSHIFT_MASK     0x20
+#define RALT_MASK     0x40
+#define RGUI_MASK     0x80
+
+
+
+#define SPECIAL_SHIFT 0x00
+
+#define P1_RIGHT    0  //orange wire
+#define P1_LEFT     1 //red wire
+#define P1_UP       2 //yellow wire
+#define P1_DOWN     3  //green wire
 #define P1_B1       4 
 #define P1_B2       5 
 #define P1_B3       6 
@@ -154,8 +187,8 @@ void Error_Handler(void);
 #define P1_B6       9 
 #define COIN1       10
 #define P1_Start    11
-#define Shift       12
-#define Extra1      13
+#define Shift       13
+#define Extra1      12
 #define Extra2      14
 
 
