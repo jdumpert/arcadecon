@@ -78,6 +78,24 @@ uint8_t press_report[PRESS_REPORT_SIZE] = {0};
 extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END 0 */
 
+static const uint16_t ioPins[]         = { (GPIO_PIN_14), (GPIO_PIN_8), (GPIO_PIN_14), (GPIO_PIN_5), (GPIO_PIN_12),  
+                                           (GPIO_PIN_1), (GPIO_PIN_12), (GPIO_PIN_7), (GPIO_PIN_5), (GPIO_PIN_3), 
+                                           (GPIO_PIN_13), (GPIO_PIN_15), (GPIO_PIN_7), (GPIO_PIN_6)};
+const GPIO_TypeDef * ioPorts[]  = {        (GPIOD),      (GPIOE),       (GPIOF),      (GPIOF),       (GPIOB),      
+                                           (GPIOB),       (GPIOF),      (GPIOG),      (GPIOD),      (GPIOC),             
+                                           (GPIOC),       (GPIOC),      (GPIOF),      (GPIOF)};
+
+const uint16_t userControlsIndex[] =      {P1_UP, P1_DOWN, P1_LEFT, P1_RIGHT, P1_B1, 
+                                          P1_B2,   P1_B3,   P1_B4,   P1_B5,   P1_B6, 
+                                           COIN1, P1_Start, Shift};
+
+const uint16_t keycodes[] =                {KEYBOARD_A, KEYBOARD_B, KEYBOARD_C, KEYBOARD_D, KEYBOARD_E, 
+                                            KEYBOARD_F, KEYBOARD_G, KEYBOARD_H, KEYBOARD_I, KEYBOARD_J, 
+                                            KEYBOARD_K, KEYBOARD_L, KEYBOARD_M, 
+                                            KEYBOARD_N, KEYBOARD_O, KEYBOARD_P, KEYBOARD_Q};
+
+#define CTL_COUNT 14
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -136,73 +154,30 @@ int main(void)
     //   HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
     // }
 
+    //clear the press report
+    for(int i = 0; i < PRESS_REPORT_SIZE; i++)
+    {
+      press_report[i] = 0x00;
+    }
+
     bool keyDown = false;
-
-    if(HAL_GPIO_ReadPin(JOYSTICK_UP_Port,JOYSTICK_UP_Pin) == GPIO_PIN_SET )
+    uint32_t reportIndex = 2;
+    for(int i = 0; i < CTL_COUNT; i++)
     {
-      press_report[2] = 0x00;
-    }
-    else
-    {
-      press_report[2] = KEYBOARD_UP;
-      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-      keyDown = true;
-    }
-
-    if(HAL_GPIO_ReadPin(JOYSTICK_DOWN_Port,JOYSTICK_DOWN_Pin) == GPIO_PIN_SET )
-    {
-      press_report[3] = 0x00;
-    }
-    else
-    {
-      press_report[3] = KEYBOARD_DOWN;
-      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-      keyDown = true;
+      if(HAL_GPIO_ReadPin(ioPorts[userControlsIndex[i]],ioPins[userControlsIndex[i]]) == GPIO_PIN_RESET )
+      {
+        press_report[reportIndex] = keycodes[i];
+        HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+        keyDown = true;
+      }
+      reportIndex++;
+      if(reportIndex == PRESS_REPORT_SIZE)
+      {
+        reportIndex = 2;
+      }
     }
 
-    if(HAL_GPIO_ReadPin(JOYSTICK_LEFT_Port,JOYSTICK_LEFT_Pin) == GPIO_PIN_SET )
-    {
-      press_report[4] = 0x00;
-    }
-    else
-    {
-      press_report[4] = KEYBOARD_LEFT;
-      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-      keyDown = true;
-    }
-
-    if(HAL_GPIO_ReadPin(JOYSTICK_RIGHT_Port,JOYSTICK_RIGHT_Pin) == GPIO_PIN_SET )
-    {
-      press_report[5] = 0x00;
-    }
-    else
-    {
-      press_report[5] = KEYBOARD_RIGHT;
-      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-      keyDown = true;
-    }    
-
-    if(HAL_GPIO_ReadPin(JOYSTICK_1_P1_Port,JOYSTICK_1_P1_Pin) == GPIO_PIN_SET )
-    {
-      press_report[6] = 0x00;
-    }
-    else
-    {
-      press_report[6] = KEYBOARD_ENTER;
-      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-      keyDown = true;
-    }   
-
-    if(HAL_GPIO_ReadPin(JOYSTICK_1_P2_Port,JOYSTICK_1_P2_Pin) == GPIO_PIN_SET )
-    {
-      press_report[7] = 0x00;
-    }
-    else
-    {
-      press_report[7] = KEYBOARD_A;
-      HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-      keyDown = true;
-    }   
+ 
 
   //led off if no flipper down
     if(keyDown == false)
@@ -348,36 +323,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  //joystick
-  GPIO_InitStruct.Pin = JOYSTICK_UP_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(JOYSTICK_UP_Port, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = JOYSTICK_DOWN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(JOYSTICK_DOWN_Port, &GPIO_InitStruct);
-
-   GPIO_InitStruct.Pin = JOYSTICK_LEFT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(JOYSTICK_LEFT_Port, &GPIO_InitStruct);
-
-   GPIO_InitStruct.Pin = JOYSTICK_RIGHT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(JOYSTICK_RIGHT_Port, &GPIO_InitStruct);
-
-   GPIO_InitStruct.Pin = JOYSTICK_1_P1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(JOYSTICK_1_P1_Port, &GPIO_InitStruct);   
-
-   GPIO_InitStruct.Pin = JOYSTICK_1_P2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(JOYSTICK_1_P2_Port, &GPIO_InitStruct);     
+  for(int i = 0; i < CTL_COUNT; i++)
+  {
+    GPIO_InitStruct.Pin = ioPins[userControlsIndex[i]];
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(ioPorts[userControlsIndex[i]], &GPIO_InitStruct);
+  }
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;

@@ -17,7 +17,7 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
-
+#pragma once
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
 #define __MAIN_H
@@ -97,23 +97,27 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
-#define JOYSTICK_UP_Pin GPIO_PIN_14  //yellow wire
-#define JOYSTICK_UP_Port GPIOD
+// #define JOYSTICK_UP_Pin GPIO_PIN_14  //yellow wire
+// #define JOYSTICK_UP_Port GPIOD
 
-#define JOYSTICK_DOWN_Pin GPIO_PIN_8  //green wire
-#define JOYSTICK_DOWN_Port GPIOE
+// #define JOYSTICK_DOWN_Pin GPIO_PIN_8  //green wire
+// #define JOYSTICK_DOWN_Port GPIOE
 
-#define JOYSTICK_LEFT_Pin GPIO_PIN_14  //orange wire
-#define JOYSTICK_LEFT_Port GPIOF
+// #define JOYSTICK_LEFT_Pin GPIO_PIN_14  //orange wire
+// #define JOYSTICK_LEFT_Port GPIOF
 
-#define JOYSTICK_RIGHT_Pin GPIO_PIN_5 //red wire
-#define JOYSTICK_RIGHT_Port GPIOF
+// #define JOYSTICK_RIGHT_Pin GPIO_PIN_5 //red wire
+// #define JOYSTICK_RIGHT_Port GPIOF
 
-#define JOYSTICK_1_P1_Pin  GPIO_PIN_12
-#define JOYSTICK_1_P1_Port GPIOB
+// #define JOYSTICK_1_P1_Pin  GPIO_PIN_12
+// #define JOYSTICK_1_P1_Port GPIOB
 
-#define JOYSTICK_1_P2_Pin  GPIO_PIN_1
-#define JOYSTICK_1_P2_Port GPIOB
+// #define JOYSTICK_1_P2_Pin  GPIO_PIN_1
+// #define JOYSTICK_1_P2_Port GPIOB
+
+//#define array of pins and ports
+
+
 
 #define KEYBOARD_UP      0x52
 #define KEYBOARD_DOWN    0x51
@@ -121,6 +125,36 @@ void Error_Handler(void);
 #define KEYBOARD_RIGHT   0x4F
 #define KEYBOARD_ENTER   0x58
 #define KEYBOARD_A       0x04
+#define KEYBOARD_B       0x05
+#define KEYBOARD_C       0x06
+#define KEYBOARD_D       0x07
+#define KEYBOARD_E       0x08
+#define KEYBOARD_F       0x09
+#define KEYBOARD_G       0x0a
+#define KEYBOARD_H       0x0b
+#define KEYBOARD_I       0x0c
+#define KEYBOARD_J       0x0d
+#define KEYBOARD_K       0x0e
+#define KEYBOARD_L       0x0f
+#define KEYBOARD_M       0x10
+#define KEYBOARD_N       0x11
+#define KEYBOARD_O       0x12
+#define KEYBOARD_P       0x13
+#define KEYBOARD_Q       0x14
+
+#define P1_UP       0 //yellow wire
+#define P1_DOWN     1  //green wire
+#define P1_LEFT     2  //orange wire
+#define P1_RIGHT    3 //red wire
+#define P1_B1       4 
+#define P1_B2       5 
+#define P1_B3       6 
+#define P1_B4       7 
+#define P1_B5       8 
+#define P1_B6       9 
+#define COIN1       10
+#define P1_Start    11
+#define Shift       12
 
 
 /* USER CODE END Private defines */
