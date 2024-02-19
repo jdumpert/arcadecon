@@ -141,6 +141,12 @@ void Error_Handler(void);
 #define KEYBOARD_O       0x12
 #define KEYBOARD_P       0x13
 #define KEYBOARD_Q       0x14
+#define KEYBOARD_R       0x15
+#define KEYBOARD_S       0x16
+#define KEYBOARD_T       0x17
+#define KEYBOARD_U       0x18
+#define KEYBOARD_V       0x19
+#define KEYBOARD_W       0x1A
 #define KEYBOARD_X       0x1B
 #define KEYBOARD_Y       0x1C
 #define KEYBOARD_Z       0x1D
@@ -149,6 +155,11 @@ void Error_Handler(void);
 #define KEYBOARD_3       0x20
 #define KEYBOARD_4       0x21
 #define KEYBOARD_5       0x22
+#define KEYBOARD_6       0x23
+#define KEYBOARD_7       0x24
+#define KEYBOARD_8       0x25
+#define KEYBOARD_9       0x26
+#define KEYBOARD_0       0x27
 
 #define KEYBOARD_SPACE   0x2C
 

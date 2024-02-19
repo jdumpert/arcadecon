@@ -42,24 +42,32 @@ uint8_t press_report[PRESS_REPORT_SIZE] = {0};
 extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END 0 */
 
-#define X(en,str,port,pin,key) pin,
-const uint16_t xIoPins[] = {XKEYS};
+
+#define X(en,str,port,pin,key, altkey, debugKey) en,
+enum xUserControlsEnum {XKEYS};
 #undef X
 
-#define X(en,str,port,pin,key) port,
-const GPIO_TypeDef * xIoPorts[] = {XKEYS};
-#undef X
-
-#define X(en,str,port,pin,key) key,
-const uint16_t xUserControlsIndex[] = {XKEYS};
-#undef X
-
-#define X(en,str,port,pin,key) str,
+#define X(en,str,port,pin,key, altkey, debugKey) str,
 const char * xUserControls[] = {XKEYS};
 #undef X
 
-#define X(en,str,port,pin,key) en,
-enum xUserControlsEnum {XKEYS};
+#define X(en,str,port,pin,key, altkey, debugKey) port,
+const GPIO_TypeDef * xIoPorts[] = {XKEYS};
+#undef X
+
+#define X(en,str,port,pin,key, altkey, debugKey) pin,
+const uint16_t xIoPins[] = {XKEYS};
+#undef X
+
+#define X(en,str,port,pin,key, altkey, debugKey) key,
+const uint16_t xKeys[] = {XKEYS};
+#undef X
+#define X(en,str,port,pin,key, altkey, debugKey) altkey,
+const uint16_t xAltKeycodes[] = {XKEYS};
+#undef X
+
+#define X(en,str,port,pin,key, altkey, debugKey) debugKey,
+const uint16_t xDebugKeycodes[] = {XKEYS};
 #undef X
 
 
@@ -159,30 +167,34 @@ int main(void)
 
     bool useShiftedKeycodes = false;
     //check for Shift key
-    if (HAL_GPIO_ReadPin(ioPorts[userControlsIndex[Shift]], ioPins[userControlsIndex[Shift]]) == GPIO_PIN_RESET)
+    if (HAL_GPIO_ReadPin(xIoPorts[EN_SPECIAL_SHIFT], xIoPins[EN_SPECIAL_SHIFT]) == GPIO_PIN_RESET)
     {
         useShiftedKeycodes = true;
     }
 
 
-    for (int i = 0; i < CTL_COUNT; i++)
+    for (int i = 0; i < EN_CONTROL_COUNT; i++)
     {
-        if (HAL_GPIO_ReadPin(ioPorts[userControlsIndex[i]], ioPins[userControlsIndex[i]]) == GPIO_PIN_RESET)
+        if (HAL_GPIO_ReadPin(xIoPorts[i], xIoPins[i]) == GPIO_PIN_RESET)
         {
-            uint16_t keycode = mameKeycodes[i];
-
-            if(keycode == 0)
+            uint16_t keycode = 0;
+            if(useShiftedKeycodes)
             {
-                press_report[reportIndex] = shiftedKeycodes[i];
-                reportIndex++;
+                keycode = xAltKeycodes[i];
             }
-            else if(keycode >= KEYBOARD_LCTRL && keycode <= KEYBOARD_RGUI)
+            else
+            {
+                keycode = xKeys[i];
+            }
+
+            //now check for control keys
+            if(keycode >= KEYBOARD_LCTRL && keycode <= KEYBOARD_RGUI)
             {
                 press_report[0] |= (0x01 << (keycode - 0xE0));
             }
             else
             {
-                press_report[reportIndex] = mameKeycodes[i];
+                press_report[reportIndex] = keycode;
                 reportIndex++;
             }
 
@@ -342,12 +354,12 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 
-  for(int i = 0; i < CTL_COUNT; i++)
+  for(int i = 0; i < EN_CONTROL_COUNT; i++)
   {
-    GPIO_InitStruct.Pin = ioPins[userControlsIndex[i]];
+    GPIO_InitStruct.Pin =  xIoPins[i];
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(ioPorts[userControlsIndex[i]], &GPIO_InitStruct);
+    HAL_GPIO_Init(xIoPorts[i], &GPIO_InitStruct);
   }
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
